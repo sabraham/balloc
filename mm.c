@@ -54,6 +54,15 @@ Block *free_heap;
 size_t heap_size;
 
 /*******************************************************************************
+ * Block manipulation functions
+ ******************************************************************************/
+
+Block *next_block(Block *b) {
+  Block *ret = (Block *) (((char *) b) + b->size + sizeof(Block));
+  return ret;
+}
+
+/*******************************************************************************
  * Helper debugging / print functions
  ******************************************************************************/
 
@@ -99,7 +108,7 @@ void init_free_tree () {
 bool is_adj (Block *p, Block *q) {
   if (q < p)
     return is_adj(q, p);
-  return (Block *) (((char *) p) + p->size + sizeof(Block)) == q;
+  return next_block(p) == q;
 }
 
 
