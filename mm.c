@@ -122,8 +122,10 @@ Block **find_free_tree (Block **head, Block *child) {
   while (*p && *p != child) {
     if (child < *p) {
       p = &((*p)->l);
-    } else {
+    } else if (child > *p){
       p = &((*p)->r);
+    } else {
+      p = p;
     }
   }
   return p;
@@ -159,19 +161,10 @@ Block *find_max_free_tree(Block **head) {
 
 Block *find_successor_free_tree (Block **head, Block *node) {
   if (!node) return NULL;
-  if (node->r)
-    return find_min_free_tree(&node->r);
-  Block **par = find_parent_free_tree(head, node);
-  if (!par)
-    return NULL;
-  Block *p = node;
-  while (*par && p == (*par)->r) {
-    p = *par;
-    par = find_parent_free_tree(head, *par);
-    if (!par)
-      return NULL;
-  }
-  return *par;
+  Block **succ, *next;
+  for (next = next_block(node); !(succ = find_free_tree(head, next));
+       next = next_block(next)) {}
+  return *succ;
 }
 
 Block *find_predecessor_free_tree (Block **head, Block *node) {
@@ -264,10 +257,10 @@ Block *insert_free_tree (Block **head, Block *child) {
   }
   // Coalesing successor is broken b.c. find_successor takes very long
   // time to terminate
-  /* Block *succ = find_successor_free_tree(head, child); */
-  /* if (succ && is_adj(child, succ)) { */
-  /*   coalesce(child, succ); */
-  /* } */
+  Block *succ = find_successor_free_tree(head, child);
+  if (succ && is_adj(child, succ)) {
+    coalesce(child, succ);
+  }
   return child;
 }
 
